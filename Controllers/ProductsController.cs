@@ -25,5 +25,13 @@ namespace LearningASP.Controllers
         {
             return ProductService.GetProducts();
         }
+
+        [Route("rate")]
+        [HttpGet]
+        public ActionResult Get([FromQuery] string productID, [FromQuery] int rating)
+        {
+            ProductService.AddRating(productID, rating);
+            return Ok();
+        }
     }
 }

@@ -37,15 +37,18 @@ namespace LearningASP.Services
         {
             var products = GetProducts();
 
-            if (products.First(x => x.ID == productId).Ratings == null)
+            // LINQ
+            var query = products.First(x => x.ID == productId);
+
+            if (query.Ratings == null)
             {
-                products.First(x => x.ID == productId).Ratings = new int[] { rating };
+                query.Ratings = new int[] { rating };
             }
             else
             {
-                var ratings = products.First(x => x.ID == productId).Ratings.ToList();
+                var ratings = query.Ratings.ToList();
                 ratings.Add(rating);
-                products.First(x => x.ID == productId).Ratings = ratings.ToArray();
+                query.Ratings = ratings.ToArray();
             }
 
             using var outputStream = File.OpenWrite(JsonFileName);

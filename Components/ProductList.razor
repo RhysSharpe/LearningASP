@@ -3,6 +3,8 @@
 @using LearningASP.Services
 @inject JsonFileProductService ProductService
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
 <div class="card-columns">
     @foreach (var product in ProductService.GetProducts())
     {
@@ -47,7 +49,27 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    
+                    @if (voteCount == 0)
+                    {
+                        <span>Be the first to vote!</span>
+                    }
+                    else
+                    {
+                        <span>@voteCount @voteLabel</span>
+                    }
+
+                    @for (int i = 1; i < 6; i++)
+                    {
+                        var currentStar = i;
+                        if (i <= currentRating)
+                        {
+                            <span class="fa fa-star checked" @onclick="(e => SubmitRating(currentStar))"></span>
+                        }
+                        else
+                        {
+                            <span class="fa fa-star" @onclick="(e => SubmitRating(currentStar))"></span>
+                        }
+                    }
                 </div>
             </div>
         </div>
@@ -57,10 +79,38 @@
 @code {
     Product selectedProduct;
     string selectedProductID;
+    int currentRating = 0;
+    int voteCount = 0;
+    string voteLabel;
 
     void SelectProduct(string productID)
     {
         selectedProductID = productID;
         selectedProduct = ProductService.GetProducts().First(x => x.ID == productID);
+        GetCurrentRating();
+    }
+
+    void GetCurrentRating()
+    {
+        if (selectedProduct.Ratings == null)
+        {
+            currentRating = 0;
+            voteCount = 0;
+        }
+        else
+        {
+            voteCount = selectedProduct.Ratings.Count();
+            voteLabel = voteCount > 1 ? "Votes" : "Vote";
+            currentRating = selectedProduct.Ratings.Sum() / voteCount;
+        }
+
+        System.Console.WriteLine($"Current rating for {selectedProduct.ID}: {currentRating}");
+    }
+
+    void SubmitRating(int rating)
+    {
+        System.Console.WriteLine($"Rating received for {selectedProduct.ID}: {rating}");
+        ProductService.AddRating(selectedProductID, rating);
+        SelectProduct(selectedProductID);
     }
 }
